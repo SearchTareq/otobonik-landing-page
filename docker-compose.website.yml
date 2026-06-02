@@ -4,10 +4,12 @@ services:
     container_name: otobonik_website
     restart: unless-stopped
     command:
-    - sh
-    - /code/run_gunicorn.sh
+    - gunicorn
+    - config.wsgi:application
+    - --workers=1
+    - --threads=2
+    - --bind=0.0.0.0:8000
     volumes:
-    - ./run_gunicorn.sh:/code/run_gunicorn.sh:ro
     - otobonik_website_static:/code/static
     - ./media:/code/media
     working_dir: /code
