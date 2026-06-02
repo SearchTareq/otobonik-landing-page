@@ -9,7 +9,24 @@ jobs:
     environment: otobonik-sgp
 
     steps:
-      - name: Deploy to VPS
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync files to VPS
+        run: |
+          rsync -avz --delete --exclude='.git' --exclude='media/' \
+            -e "ssh -i ~/.ssh/deploy_key -p 22" \
+            ./ \
+            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:/var/otobonik/otobonik-landing-page/
+
+      - name: Build and deploy
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ vars.SSH_HOST }}
@@ -19,7 +36,6 @@ jobs:
           script: |
             set -e
             cd /var/otobonik/otobonik-landing-page
-            git pull --no-edit origin ${{ github.ref_name }}
             make build
             make down
             make flush-static
