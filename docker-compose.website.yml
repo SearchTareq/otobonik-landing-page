@@ -1,0 +1,51 @@
+services:
+  otobonik-website:
+    image: otobonik-website:latest
+    container_name: otobonik_website
+    restart: unless-stopped
+    command:
+    - sh
+    - /code/run_gunicorn.sh
+    volumes:
+    - ./run_gunicorn.sh:/code/run_gunicorn.sh:ro
+    - otobonik_static:/code/static
+    - ./tenant-media/perfect-electric:/code/media
+    working_dir: /code
+    env_file:
+    - .env
+    expose:
+    - '8000'
+    networks:
+    - otobonik_net
+
+  otobonik-website-nginx:
+    image: nginx:alpine
+    container_name: otobonik_website_nginx
+    restart: unless-stopped
+    expose:
+    - '80'
+    volumes:
+    - ./docker-nginx-website.conf:/etc/nginx/conf.d/default.conf:ro
+    - otobonik_website_static:/code/static:ro
+    depends_on:
+    - otobonik-website
+    networks:
+    - otobonik_net
+    labels:
+    - traefik.enable=true
+    - traefik.docker.network=otobonik_net
+    - traefik.http.routers.otobonik-website.rule=Host(`otobonik.com`)
+    - traefik.http.routers.otobonik-website.entrypoints=websecure
+    - traefik.http.routers.otobonik-website.tls=true
+    - traefik.http.routers.otobonik-website.tls.certresolver=le
+    - traefik.http.routers.otobonik-website-http.rule=Host(`otobonik.com`)
+    - traefik.http.routers.otobonik-website-http.entrypoints=web
+    - traefik.http.routers.otobonik-website-http.service=otobonik-website
+    - traefik.http.services.otobonik-website.loadbalancer.server.port=80
+
+networks:
+  otobonik_net:
+    name: otobonik_net
+volumes:
+  otobonik_website_static:
+    external: true

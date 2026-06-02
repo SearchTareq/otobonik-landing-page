@@ -1,0 +1,26 @@
+name: Deploy website
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment: otobonik-sgp
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd /var/otobonik/otobonik-landing-page
+            git pull --no-edit origin ${{ github.ref_name }}
+            make build
+            make down
+            make flush-static
+            make up
