@@ -8,8 +8,8 @@ services:
     - /code/run_gunicorn.sh
     volumes:
     - ./run_gunicorn.sh:/code/run_gunicorn.sh:ro
-    - otobonik_static:/code/static
-    - ./tenant-media/perfect-electric:/code/media
+    - otobonik_website_static:/code/static
+    - ./media:/code/media
     working_dir: /code
     env_file:
     - .env
@@ -27,6 +27,7 @@ services:
     volumes:
     - ./docker-nginx-website.conf:/etc/nginx/conf.d/default.conf:ro
     - otobonik_website_static:/code/static:ro
+    - ./media:/code/media:ro
     depends_on:
     - otobonik-website
     networks:
