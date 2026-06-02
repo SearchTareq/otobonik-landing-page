@@ -21,7 +21,7 @@ jobs:
 
       - name: Sync files to VPS
         run: |
-          rsync -avz --delete --exclude='.git' --exclude='media/' \
+          rsync -avz --delete --exclude='.git' --exclude='media/' --exclude='.env' \
             -e "ssh -i ~/.ssh/deploy_key -p 22" \
             ./ \
             ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:/var/otobonik/otobonik-landing-page/
