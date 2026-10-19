@@ -37,11 +37,11 @@ services:
     labels:
     - traefik.enable=true
     - traefik.docker.network=otobonik_net
-    - traefik.http.routers.otobonik-website.rule=Host(`otobonik.com`)
+    - traefik.http.routers.otobonik-website.rule=Host(`otobonik.com`) || Host(`www.otobonik.com`)
     - traefik.http.routers.otobonik-website.entrypoints=websecure
     - traefik.http.routers.otobonik-website.tls=true
     - traefik.http.routers.otobonik-website.tls.certresolver=le
-    - traefik.http.routers.otobonik-website-http.rule=Host(`otobonik.com`)
+    - traefik.http.routers.otobonik-website-http.rule=Host(`otobonik.com`) || Host(`www.otobonik.com`)
     - traefik.http.routers.otobonik-website-http.entrypoints=web
     - traefik.http.routers.otobonik-website-http.service=otobonik-website
     - traefik.http.services.otobonik-website.loadbalancer.server.port=80
